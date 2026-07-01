@@ -27,16 +27,54 @@
     h1 { 
       text-align: center; 
       color: #2d3748;
-      margin-bottom: 5px;
+      margin-bottom: 20px;
     }
 
-    /* Contador de libros */
-    .counter-badge {
-      text-align: center;
-      color: #4a5568;
-      font-size: 14px;
-      font-weight: 500;
+    /* NUEVO: Contenedor de Tarjetas de Estadísticas */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
       margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      border-color: #667eea;
+    }
+
+    .stat-card i {
+      font-size: 20px;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+
+    .stat-title {
+      font-size: 12px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2d3748;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Formularios y controles */
@@ -129,7 +167,6 @@
       background-color: #f7fafc;
     }
 
-    /* Estilos específicos de botones de acción */
     .edit { background: #f1c40f; color: #333; padding: 8px 12px; font-size: 13px; }
     .edit:hover { background: #d4ac0d; }
 
@@ -145,7 +182,29 @@
 <div class="container">
 
   <h1>📚 Biblioteca Personal</h1>
-  <div id="contador" class="counter-badge">Cargando estadísticas...</div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <i class="fas fa-book"></i>
+      <div class="stat-title">Total Libros</div>
+      <div id="stat-total" class="stat-value">-</div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-hourglass-start"></i>
+      <div class="stat-title">Más Antiguo</div>
+      <div id="stat-antiguo" class="stat-value">-</div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-bolt"></i>
+      <div class="stat-title">Más Reciente</div>
+      <div id="stat-reciente" class="stat-value">-</div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-pen-nib"></i>
+      <div class="stat-title">Autor Favorito</div>
+      <div id="stat-autor" class="stat-value">-</div>
+    </div>
+  </div>
 
   <div class="form">
     <input id="titulo" placeholder="Título del libro">

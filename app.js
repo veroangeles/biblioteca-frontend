@@ -4,7 +4,6 @@ let allBooks = []; // Almacén en memoria local para búsquedas ultra rápidas
 // 1. Obtener libros de la API (Maneja el mensaje de carga)
 async function getBooks() {
   try {
-    // Mostramos visualmente el spinner de carga antes de la petición
     const tbody = document.getElementById("tbody");
     tbody.innerHTML = `
       <tr>
@@ -18,10 +17,10 @@ async function getBooks() {
     allBooks = await res.json();
     
     renderBooks(allBooks); // Dibujamos los libros recibidos
-    updateCounter(allBooks.length); // Actualizamos el contador dinámico
+    calculateStats(allBooks); // NUEVO: Calcula estadísticas de la lista global
   } catch (error) {
     console.error("Error al obtener libros:", error);
-    document.getElementById("tbody").html = `
+    document.getElementById("tbody").innerHTML = `
       <tr>
         <td colspan="5" class="loading-status" style="color: #e74c3c;">
           <i class="fas fa-exclamation-triangle"></i> Error al conectar con el servidor. Reintenta más tarde.
@@ -31,7 +30,7 @@ async function getBooks() {
   }
 }
 
-// 2. Renderizar (dibujar) las filas de libros en la tabla con iconos modernos
+// 2. Renderizar (dibujar) las filas de libros en la tabla
 function renderBooks(booksList) {
   const tbody = document.getElementById("tbody");
   tbody.innerHTML = "";
@@ -65,7 +64,7 @@ function renderBooks(booksList) {
   });
 }
 
-// 3. Filtrar en tiempo real y actualizar el contador simultáneamente
+// 3. Filtrar en tiempo real y actualizar estadísticas del filtro activo
 function filterBooks() {
   const query = document.getElementById("buscador").value.toLowerCase().trim();
   
@@ -75,17 +74,54 @@ function filterBooks() {
   });
 
   renderBooks(filtered);
-  updateCounter(filtered.length); // El contador baja si hay filtros activos
+  calculateStats(filtered); // Las estadísticas se recalculan en tiempo real según el filtro
 }
 
-// 4. Actualizar el texto del contador dinámico
-function updateCounter(total) {
-  const contadorElemento = document.getElementById("contador");
-  if (total === 1) {
-    contadorElemento.innerHTML = `📚 Tienes <strong style="color: #667eea;">1 libro</strong> registrado en tu colección`;
-  } else {
-    contadorElemento.innerHTML = `📚 Tienes <strong style="color: #667eea;">${total} libros</strong> registrados en tu colección`;
+// 4. NUEVO: Función matemática para calcular las estadísticas analíticas
+function calculateStats(booksList) {
+  const total = booksList.length;
+  
+  // Si no hay libros, reiniciamos los campos visuales
+  if (total === 0) {
+    document.getElementById("stat-total").innerText = "0";
+    document.getElementById("stat-antiguo").innerText = "N/A";
+    document.getElementById("stat-reciente").innerText = "N/A";
+    document.getElementById("stat-autor").innerText = "N/A";
+    return;
   }
+
+  // A. Total de libros
+  document.getElementById("stat-total").innerText = total;
+
+  // B. Encontrar libro más antiguo y más reciente basándonos en el año
+  let antiguo = booksList[0];
+  let reciente = booksList[0];
+
+  booksList.forEach(book => {
+    if (Number(book.anio) < Number(antiguo.anio)) antiguo = book;
+    if (Number(book.anio) > Number(reciente.anio)) reciente = book;
+  });
+
+  document.getElementById("stat-antiguo").innerText = `${antiguo.anio} (${antiguo.titulo})`;
+  document.getElementById("stat-reciente").innerText = `${reciente.anio} (${reciente.titulo})`;
+
+  // C. Encontrar el autor que más se repite (Moda estadística)
+  const autorCounts = {};
+  let maxCount = 0;
+  let topAutor = "";
+
+  booksList.forEach(book => {
+    const autor = book.autor.trim();
+    if (autor) {
+      autorCounts[autor] = (autorCounts[autor] || 0) + 1;
+      if (autorCounts[autor] > maxCount) {
+        maxCount = autorCounts[autor];
+        topAutor = autor;
+      }
+    }
+  });
+
+  document.getElementById("stat-autor").innerText = topAutor ? `${topAutor} (${maxCount})` : "N/A";
 }
 
 // 5. Agregar un libro a la colección
@@ -115,7 +151,7 @@ function clearInputs() {
   document.getElementById("anio").value = "";
 }
 
-// 6. Eliminar un libro (Con confirmación nativa)
+// 6. Eliminar un libro
 async function deleteBook(id) {
   if (confirm("¿Estás seguro de que deseas eliminar permanentemente este libro?")) {
     await fetch(`${API}/${id}`, { method: "DELETE" });
@@ -165,5 +201,5 @@ async function saveEdit(id) {
   getBooks();
 }
 
-// Encendido inicial de la aplicación al cargar la página
+// Encendido inicial
 getBooks();

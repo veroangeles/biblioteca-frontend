@@ -201,5 +201,113 @@ async function saveEdit(id) {
   getBooks();
 }
 
+
+// ==========================================
+// 🤖 SECCIÓN DEL CHATBOT INTELIGENTE
+// ==========================================
+
+// Alternar visibilidad de la ventana de chat
+function toggleChat() {
+  const chatWindow = document.getElementById("chatWindow");
+  if (chatWindow.style.display === "none" || chatWindow.style.display === "") {
+    chatWindow.style.display = "flex";
+  } else {
+    chatWindow.style.display = "none";
+  }
+}
+
+// Enviar mensaje al presionar Enter
+function handleChatKey(event) {
+  if (event.key === "Enter") {
+    sendMessage();
+  }
+}
+
+// Procesar el mensaje enviado por el usuario
+function sendMessage() {
+  const inputElement = document.getElementById("chatInput");
+  const query = inputElement.value.trim();
+  
+  if (!query) return;
+
+  // 1. Mostrar mensaje del usuario en pantalla
+  appendMessage(query, "user");
+  inputElement.value = ""; // Limpiar input
+
+  // 2. Hacer que el bot analice y responda
+  setTimeout(() => {
+    const response = generateBotResponse(query.toLowerCase());
+    appendMessage(response, "bot");
+  }, 400); // Pequeño retraso simulando que el bot "piensa"
+}
+
+// Imprimir burbujas de texto en el historial del chat
+function appendMessage(text, sender) {
+  const chatMessages = document.getElementById("chatMessages");
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `message ${sender}`;
+  msgDiv.innerHTML = text;
+  
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll al último mensaje
+}
+
+// Inteligencia y lógica de respuesta del Bot
+function generateBotResponse(msg) {
+  if (allBooks.length === 0) {
+    return "Lo siento, la biblioteca está vacía en este momento. ¡Prueba agregando un libro primero!";
+  }
+
+  // Opción A: Recomendar un libro al azar
+  if (msg.includes("recomienda") || msg.includes("recomendación") || msg.includes("sugiere")) {
+    const randomIndex = Math.floor(Math.random() * allBooks.length);
+    const libro = allBooks[randomIndex];
+    return `🎲 Te recomiendo leer: <b>"${libro.titulo}"</b> de <i>${libro.autor}</i> (${libro.anio}). ¡Es una excelente obra!`;
+  }
+
+  // Opción B: Preguntar por el libro más antiguo
+  if (msg.includes("viejo") || msg.includes("antiguo")) {
+    let antiguo = allBooks[0];
+    allBooks.forEach(b => { if (Number(b.anio) < Number(antiguo.anio)) antiguo = b; });
+    return `👴 El libro más antiguo de tu colección es <b>"${antiguo.titulo}"</b>, escrito por <i>${antiguo.autor}</i> en el año <b>${antiguo.anio}</b>.`;
+  }
+
+  // Opción C: Preguntar por el libro más nuevo o reciente
+  if (msg.includes("nuevo") || msg.includes("reciente") || msg.includes("último")) {
+    let reciente = allBooks[0];
+    allBooks.forEach(b => { if (Number(b.anio) > Number(reciente.anio)) reciente = b; });
+    return `⚡ El libro más reciente de tu colección es <b>"${reciente.titulo}"</b>, escrito por <i>${reciente.autor}</i> en el año <b>${reciente.anio}</b>.`;
+  }
+
+  // Opción D: Buscar libros de un autor en específico o palabras clave en el título
+  // Ejemplo: "¿tienes libros de Stephen King?" o "¿tienes Don Quijote?"
+  const encontrados = allBooks.filter(libro => {
+    return msg.includes(libro.autor.toLowerCase()) || msg.includes(libro.titulo.toLowerCase());
+  });
+
+  if (encontrados.length > 0) {
+    let respuesta = `🔍 Encontré estos libros relacionados en tu biblioteca:<br><br>`;
+    encontrados.forEach((l, i) => {
+      respuesta += `${i + 1}. <b>"${l.titulo}"</b> - <i>${l.autor}</i> (${l.anio})<br>`;
+    });
+    return respuesta;
+  }
+
+  // Opción E: Buscar por un año en particular (ej. "2024")
+  const añoBuscado = msg.match(/\d{4}/); // Detecta si el usuario escribió un número de 4 dígitos
+  if (añoBuscado) {
+    const librosAño = allBooks.filter(l => l.anio == añoBuscado[0]);
+    if (librosAño.length > 0) {
+      let respuesta = `📅 Libros del año <b>${añoBuscado[0]}</b>:<br><br>`;
+      librosAño.forEach(l => respuesta += `• <b>"${l.titulo}"</b> (${l.autor})<br>`);
+      return respuesta;
+    } else {
+      return `No tengo ningún libro registrado que se haya publicado en el año ${añoBuscado[0]}.`;
+    }
+  }
+
+  // Respuesta por defecto si no entiende la pregunta
+  return "🤔 No logré entender bien tu pregunta. Recuerda que puedo recomendarte libros al azar, buscar por autores específicos, o decirte cuáles son tus libros más antiguos o recientes.";
+}
 // Encendido inicial
 getBooks();

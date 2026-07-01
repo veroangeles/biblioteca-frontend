@@ -140,6 +140,111 @@
     .loading-status i {
       margin-right: 8px;
     }
+    /* --- BOT DE LIBROS (CHAT FLOTANTE) --- */
+    .chat-bubble {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #667eea;
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .chat-bubble:hover {
+      transform: scale(1.1) rotate(15deg);
+      background: #764ba2;
+    }
+
+    .chat-window {
+      position: fixed;
+      bottom: 95px;
+      right: 25px;
+      width: 350px;
+      height: 450px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      display: none; /* Oculto por defecto */
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+      border: 1px solid #e2e8f0;
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #f7fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+
+    .message.bot {
+      background: #edf2f7;
+      color: #2d3748;
+      align-self: flex-start;
+      border-top-left-radius: 2px;
+    }
+
+    .message.user {
+      background: #667eea;
+      color: white;
+      align-self: flex-end;
+      border-top-right-radius: 2px;
+    }
+
+    .chat-input-area {
+      display: flex;
+      padding: 10px;
+      background: white;
+      border-top: 1px solid #edf2f7;
+    }
+
+    .chat-input-area input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .chat-input-area button {
+      padding: 10px 15px;
+      margin-left: 8px;
+      background: #667eea;
+      color: white;
+      border-radius: 6px;
+    }
 
     /* Tabla estilizada */
     table {
@@ -237,6 +342,34 @@
   </table>
 
 </div>
+
+<div class="chat-bubble" onclick="toggleChat()">
+  <i class="fas fa-comments"></i>
+</div>
+
+<div id="chatWindow" class="chat-window">
+  <div class="chat-header">
+    <span>🤖 Biblioteco Bot</span>
+    <i class="fas fa-times" style="cursor:pointer;" onclick="toggleChat()"></i>
+  </div>
+  
+  <div id="chatMessages" class="chat-messages">
+    <div class="message bot">
+      ¡Hola! Soy tu asistente virtual de lectura. 📚<br><br>
+      Puedes preguntarme cosas como:<br>
+      • <i>"¿Qué libros tienes de García Márquez?"</i><br>
+      • <i>"Recomiéndame un libro"</i><br>
+      • <i>"¿Cuál es el libro más viejo?"</i>
+      • <i>"De que se trata el libro el principito"</i>
+    </div>
+  </div>
+  
+  <div class="chat-input-area">
+    <input id="chatInput" placeholder="Escribe tu pregunta aquí..." onkeypress="handleChatKey(event)">
+    <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+
 
 <script src="app.js"></script>
 </body>

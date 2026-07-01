@@ -262,33 +262,10 @@ async function sendMessage() {
 }
 
 // NUEVA VERSIÓN: Conexión real con el Backend de IA
+// Conexión real con el Backend de IA utilizando la constante global ordenada
 async function generateBotResponse(msg) {
   try {
-    // NOTA: Cuando me pases tu Backend, definiremos exactamente esta ruta (ej: /chat o /bot)
-    // Por ahora apuntamos a una ruta relativa en tu mismo servidor backend
-    const URL_BACKEND_CHAT = "https://biblioteca-blt2.onrender.com/chat"; 
-
-    const res = await fetch(URL_BACKEND_CHAT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pregunta: msg }) // Enviamos la pregunta al servidor
-    });
-
-    if (!res.ok) throw new Error("Error en la respuesta del servidor");
-
-    const data = await res.json();
-    return data.respuesta; // Retornamos la respuesta que nos dé el LLM
-
-  } catch (error) {
-    console.error("Error al conectar con el bot IA:", error);
-    return "❌ Uy, tuve un problema al conectarme con mi cerebro de IA. Asegúrate de que el backend esté encendido.";
-  }
-}
-
-// Conexión real con el Backend de IA utilizando la constante global
-async function generateBackendBotResponse(msg) {
-  try {
-    const res = await fetch(API_CHAT, { // 👈 Ahora usa la constante global ordenada
+    const res = await fetch(API_CHAT, { // 👈 Usa la constante de la línea 2
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pregunta: msg })
@@ -297,12 +274,13 @@ async function generateBackendBotResponse(msg) {
     if (!res.ok) throw new Error("Error en la respuesta del servidor");
 
     const data = await res.json();
-    return data.respuesta;
+    return data.respuesta; // Retornamos la respuesta que nos dé AWS Bedrock / Claude
 
   } catch (error) {
     console.error("Error al conectar con el bot IA:", error);
     return "❌ Uy, tuve un problema al conectarme con mi cerebro de IA. Asegúrate de que el backend esté encendido.";
   }
 }
+
 // Encendido inicial
 getBooks();

@@ -3,82 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <title>Biblioteca CRUD</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
   <style>
+    /* Fondo moderno con degradado suave y animado */
     body {
-      font-family: Arial;
-      background: #f4f6f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       margin: 0;
       padding: 30px;
+      min-height: 100vh;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 950px;
       margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.96);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
     }
 
-    h1 { text-align: center; }
+    h1 { 
+      text-align: center; 
+      color: #2d3748;
+      margin-bottom: 5px;
+    }
 
-    .form {
+    /* Contador de libros */
+    .counter-badge {
+      text-align: center;
+      color: #4a5568;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 25px;
+    }
+
+    /* Formularios y controles */
+    .form, .search-container {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 20px;
     }
 
+    .search-container {
+      grid-template-columns: 1fr;
+    }
+
     input {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
     }
 
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    }
+
+    /* Botones interactivos con transiciones */
     button {
-      padding: 10px;
+      padding: 12px 20px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
     }
 
-    .add {
-      background: #2ecc71;
-      color: white;
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
+    button:active {
+      transform: translateY(0);
+    }
+
+    .add { background: #2ecc71; color: white; }
+    .add:hover { background: #27ae60; }
+
+    /* Estado de Carga (Spinner) */
+    .loading-status {
+      text-align: center;
+      padding: 30px;
+      color: #4a5568;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .loading-status i {
+      margin-right: 8px;
+    }
+
+    /* Tabla estilizada */
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
     }
 
     th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
+      padding: 14px;
+      border-bottom: 1px solid #edf2f7;
       text-align: center;
     }
 
     th {
-      background: #3498db;
+      background: #4a5568;
       color: white;
+      font-weight: 600;
     }
 
-    .edit { background: #f1c40f; }
-    .delete { background: #e74c3c; color: white; }
-    .save { background: #2ecc71; color: white; }
+    tr:hover {
+      background-color: #f7fafc;
+    }
+
+    /* Estilos específicos de botones de acción */
+    .edit { background: #f1c40f; color: #333; padding: 8px 12px; font-size: 13px; }
+    .edit:hover { background: #d4ac0d; }
+
+    .delete { background: #e74c3c; color: white; padding: 8px 12px; font-size: 13px; }
+    .delete:hover { background: #c0392b; }
+
+    .save { background: #3498db; color: white; padding: 8px 12px; font-size: 13px; }
+    .save:hover { background: #2980b9; }
   </style>
 </head>
 <body>
 
 <div class="container">
 
-  <h1>📚 Biblioteca CRUD</h1>
+  <h1>📚 Biblioteca Personal</h1>
+  <div id="contador" class="counter-badge">Cargando estadísticas...</div>
 
   <div class="form">
-    <input id="titulo" placeholder="Título">
+    <input id="titulo" placeholder="Título del libro">
     <input id="autor" placeholder="Autor">
     <input id="anio" type="number" placeholder="Año">
-    <button class="add" onclick="addBook()">Agregar</button>
+    <button class="add" onclick="addBook()"><i class="fas fa-plus"></i> Agregar</button>
+  </div>
+
+  <div class="search-container">
+    <input id="buscador" placeholder="🔍 Buscar por autor o título en tiempo real..." oninput="filterBooks()">
   </div>
 
   <table>
@@ -91,7 +168,13 @@
         <th>Acciones</th>
       </tr>
     </thead>
-    <tbody id="tbody"></tbody>
+    <tbody id="tbody">
+      <tr>
+        <td colspan="5" class="loading-status">
+          <i class="fas fa-spinner fa-spin"></i> Conectando con la biblioteca digital... por favor espera.
+        </td>
+      </tr>
+    </tbody>
   </table>
 
 </div>

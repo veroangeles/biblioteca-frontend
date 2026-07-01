@@ -1,4 +1,5 @@
 const API = "https://biblioteca-blt2.onrender.com/libros";
+const API_CHAT   = "https://biblioteca-blt2.onrender.com/chat";
 let allBooks = []; // Almacén en memoria local para búsquedas ultra rápidas
 
 // 1. Obtener libros de la API (Maneja el mensaje de carga)
@@ -277,6 +278,26 @@ async function generateBotResponse(msg) {
 
     const data = await res.json();
     return data.respuesta; // Retornamos la respuesta que nos dé el LLM
+
+  } catch (error) {
+    console.error("Error al conectar con el bot IA:", error);
+    return "❌ Uy, tuve un problema al conectarme con mi cerebro de IA. Asegúrate de que el backend esté encendido.";
+  }
+}
+
+// Conexión real con el Backend de IA utilizando la constante global
+async function generateBackendBotResponse(msg) {
+  try {
+    const res = await fetch(API_CHAT, { // 👈 Ahora usa la constante global ordenada
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pregunta: msg })
+    });
+
+    if (!res.ok) throw new Error("Error en la respuesta del servidor");
+
+    const data = await res.json();
+    return data.respuesta;
 
   } catch (error) {
     console.error("Error al conectar con el bot IA:", error);
